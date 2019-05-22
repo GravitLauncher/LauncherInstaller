@@ -111,9 +111,9 @@ int root_action()
             std::cin >> new_uid;
             if(new_uid <= 0) new_uid = 2001;
             system(("useradd -u "+std::to_string(new_uid)+" -m "+username).c_str());
-            std::cout << "[ROOT] Create user launchserver" << std::endl;
-            chdir("/home/launchserver");
-            std::cout << "[ROOT] Change dir to /home/launchserver" << std::endl;
+            std::cout << "[ROOT] Create user " << username << std::endl;
+            chdir(("/home/"+username).c_str());
+            std::cout << "[ROOT] Change dir to /home/" << username << std::endl;
             setuid(new_uid);
         }
         else
