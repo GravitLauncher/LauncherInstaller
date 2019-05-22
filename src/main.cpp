@@ -259,10 +259,10 @@ int main(int argc, char **argv)
 		}
 		else download_url = download_url + version;
     }
-	if (opts.isBuild) {
+	if (!opts.isNoInstall && opts.isBuild) {
 		buildDev();
 	}
-	if (!opts.isNoInstall && install_action() != 0) return -1;
+	else if (!opts.isNoInstall && install_action() != 0) return -1;
 	std::cout << "Download modules[YES/NO]?";
 	if (read_yes())
 	{
