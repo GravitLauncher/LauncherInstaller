@@ -9,6 +9,12 @@ bool is_debian = false;
 bool is_arch = false;
 bool is_centos = false;
 bool is_root = false;
+struct installerOptions
+{
+    bool isBuild = false;
+    bool isNoInstall = false;
+};
+installerOptions opts;
 std::string download_url = "http://mirror.gravitlauncher.ml/build/";
 bool is_file_exist(const char* file)
 {
@@ -69,11 +75,27 @@ int root_action()
         std::cin >> response;
         if(response == "yes" || response == "YES" || response == "Yes")
         {
-            system("useradd -u 2001 -m launchserver");
+            std::string username;
+            std::cout << "Username[launchserver]: ";
+            std::cin >> username;
+            //Check unsafe symbols
+            for(char c : username)
+            {
+                if(!((/*Numbers*/ c >= '0' && c <= '9') || (/*Big chars*/c >= 'A' && c <= 'Z') || (/*Little chars*/c >= 'a' && c <= 'z'))) {
+                    std::cout << "[WARN] Found unsafe symbol \"" << c << "\"" << std::endl;
+                    username = "";
+                }
+            }
+            if(username == "") username = "launchserver";
+            int new_uid = 2001;
+            std::cout << "New UID [2001]: ";
+            std::cin >> new_uid;
+            if(new_uid <= 0) new_uid = 2001;
+            system(("useradd -u "+std::to_string(new_uid)+" -m "+username).c_str());
             std::cout << "[ROOT] Create user launchserver" << std::endl;
             chdir("/home/launchserver");
             std::cout << "[ROOT] Change dir to /home/launchserver" << std::endl;
-            setuid(2001);
+            setuid(new_uid);
         }
         else
         {
@@ -140,12 +162,6 @@ int install_action()
     return 0;
 }
 const char* avalible_options = "bm";
-struct installerOptions
-{
-    bool isBuild = false;
-    bool isNoInstall = false;
-};
-installerOptions opts;
 int main(int argc, char **argv)
 {
     int opt; // каждая следующая опция попадает сюда
