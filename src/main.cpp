@@ -128,6 +128,7 @@ int install_action()
 	}
 	system("rm libraries.zip");
 	test();
+	return 0;
 }
 
 int test() {
@@ -162,6 +163,28 @@ int test() {
 	}
 	return 0;
 }
+
+int buildDev() {
+	std::cout << "Download dev branch" << std::endl;
+	system("git clone --branch=dev https://github.com/GravitLauncher/Launcher.git source");
+	system("cd source");
+	system("rm -r Radon");
+	std::cout << "Download radon" << std::endl;
+	system("git clone https://github.com/GravitLauncher/Radon.git Radon");
+	system("chmod +x gradlew");
+    std::cout << "Build" << std::endl;
+	system("./gradlew build");
+	system("mkdir ../LaunchServer");
+	system("mv LaunchServer/build /libs/* ../LaunchServer");
+	system("mv ServerWrapper/build/libs/ServerWrapper.jar ../ServerWrapper.jar");
+	system("cd ..");
+	system("rm -rf source");
+	system("cd LaunchServer");
+	test();
+	return 0;
+}
+
+
 const char* avalible_options = "bm";
 struct installerOptions
 {
@@ -215,6 +238,9 @@ int main(int argc, char **argv)
 			download_url = download_url + "dev";
 		}
 		else download_url = download_url + version;
+    }
+	if (opts.isBuild) {
+		buildDev();
 	}
 	if (!opts.isNoInstall && install_action() != 0) return -1;
 	std::cout << "Download modules[YES/NO]?";
@@ -244,9 +270,6 @@ int main(int argc, char **argv)
 		}
 		chdir("..");
 	}
-	if (opts.isBuild) {
-		buildDev();
-	}
 	if (is_root)
 	{
 		if (is_file_exist("/bin/bash"))
@@ -254,23 +277,4 @@ int main(int argc, char **argv)
 			execl("/bin/bash", NULL);
 		}
 	}
-}
-
-int buildDev() {
-	std::cout << "Download dev branch" << std::endl;
-	system("git clone --branch=dev https://github.com/GravitLauncher/Launcher.git source");
-	system("cd source");
-	system("rm -r Radon");
-	std::cout << "Download radon" << std::endl;
-	system("git clone https://github.com/GravitLauncher/Radon.git Radon");
-	system("chmod +x gradlew");
-    std::cout << "Build" << std::endl;
-	system("./gradlew build");
-	system("mkdir ../LaunchServer");
-	system("mv LaunchServer/build /libs/* ../LaunchServer");
-	system("mv ServerWrapper/build/libs/ServerWrapper.jar ../ServerWrapper.jar");
-	system("cd ..");
-	system("rm -rf source");
-	system("cd LaunchServer");
-	test();
 }
