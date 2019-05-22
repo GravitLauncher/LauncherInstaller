@@ -64,6 +64,25 @@ int root_action()
                 }
             }
         }
+		if (!is_file_exist("/bin/git") && (is_debian || is_arch || is_centos))
+		{
+			std::cout << "[ROOT] Git not found. Install [YES/NO]? ";
+			if (read_yes())
+			{
+				if (is_debian)
+				{
+					system("apt install git");
+				}
+				else if (is_arch)
+				{
+					system("pacman -S git");
+				}
+				else if (is_centos)
+				{
+					system("yum install git");
+				}
+			}
+		}
         std::string response;
         std::cout << "Create new user for LaunchServer [YES/NO]? ";
         std::cin >> response;
@@ -83,31 +102,34 @@ int root_action()
 }
 int install_action()
 {
-    std::cout << "UID: " << getuid() << "" << std::endl;
-    std::cout << "Download LaunchServer" << std::endl;
-    std::string download_launchserver = "curl -o LaunchServer.jar "+download_url+"/LaunchServer.jar";
-    system(download_launchserver.c_str());
-    if(!is_file_exist("LaunchServer.jar"))
-    {
-        std::cerr << "[ERROR] LaunchServer.jar not found. May be curl not installed?";
-        return -1;
-    }
-    std::cout << "Download libraries" << std::endl;
-    std::string download_lib = "curl -o libraries.zip "+download_url+"/libraries.zip";
-    system(download_lib.c_str());
-    if(!is_file_exist("libraries.zip"))
-    {
-        std::cerr << "[ERROR] libraries.zip not found. May be curl not installed?";
-        return -1;
-    }
-    std::cout << "Unpack libraries" << std::endl;
-    system("unzip libraries.zip");
-    if(!is_file_exist("libraries"))
-    {
-        std::cerr << "[ERROR] libraries not found. May be unzip not installed?";
-        return -1;
-    }
-    system("rm libraries.zip");
+	std::cout << "UID: " << getuid() << "" << std::endl;
+	std::cout << "Download LaunchServer" << std::endl;
+	std::string download_launchserver = "curl -o LaunchServer.jar " + download_url + "/LaunchServer.jar";
+	system(download_launchserver.c_str());
+	if (!is_file_exist("LaunchServer.jar"))
+	{
+		std::cerr << "[ERROR] LaunchServer.jar not found. May be curl not installed?";
+		return -1;
+	}
+	std::cout << "Download libraries" << std::endl;
+	std::string download_lib = "curl -o libraries.zip " + download_url + "/libraries.zip";
+	system(download_lib.c_str());
+	if (!is_file_exist("libraries.zip"))
+	{
+		std::cerr << "[ERROR] libraries.zip not found. May be curl not installed?";
+		return -1;
+	}
+	std::cout << "Unpack libraries" << std::endl;
+	system("unzip libraries.zip");
+	if (!is_file_exist("libraries"))
+	{
+		std::cerr << "[ERROR] libraries not found. May be unzip not installed?";
+		return -1;
+	}
+	system("rm libraries.zip");
+	test();
+}
+int test() {
     std::cout << "Installation test" << std::endl;
     system("java -javaagent:LaunchServer.jar -jar LaunchServer.jar multi build checkInstall stop");
     std::cout << "Chmod private.key to 700" << std::endl;
@@ -164,6 +186,9 @@ int main()
     std::cin >> version;
     if(version == "dev" || version == "5.0.0b6" || version == "5.0.0b7")
     {
+		if (version == "dev") {
+			buildDev();
+		}
         download_url = download_url + version;
     }
     else
@@ -183,4 +208,20 @@ int main()
             execl("/bin/bash", NULL);
         }
     }
+}
+
+int buildDev() {
+	system("git clone --branch=dev https://github.com/GravitLauncher/Launcher.git source");
+	system("cd source");
+	system("rm -r Radon");
+	system("git clone https://github.com/GravitLauncher/Radon.git Radon");
+	system("chmod +x gradlew");
+	system("./gradlew build");
+	system("mkdir ../LaunchServer");
+	system("mv LaunchServer/build /libs/* ../LaunchServer");
+	system("mv ServerWrapper/build/libs/ServerWrapper.jar ../ServerWrapper.jar");
+	system("cd ..");
+	system("rm -rf source");
+	system("cd LaunchServer");
+	test();
 }
