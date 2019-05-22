@@ -173,9 +173,36 @@ int main()
         {
             download_url = download_url + "dev";
         }
-        else return 0;
+        else download_url = download_url + version;
     }
     if(install_action() != 0) return -1;
+    std::cout << "Download modules[YES/NO]?";
+    if(read_yes())
+    {
+        if(is_file_exist("modules"))
+            mkdir("modules", S_IRUSR | S_IWUSR | S_IXUSR);
+        chdir("modules");
+        std::string module;
+        std::cout << "Print module name:";
+        std::cin >> module;
+        while(module != "" && module != "stop" && module != "exit")
+        {
+            std::string download_module = "curl -o \""+module+".jar\" \""+download_url+"/modules/"+module+"_module.jar\"";
+            std::cout << "Download " << module << ".jar" << std::endl;
+            int ret = system(download_module.c_str());
+            if(ret != 0)
+            {
+                std::cerr << "[ERROR] Error download module " << module << std::endl;
+                if(is_file_exist((module+".jar").c_str()))
+                {
+                    remove((module+".jar").c_str());
+                }
+            }
+            std::cout << "Print module name:";
+            std::cin >> module;
+        }
+        chdir("..");
+    }
     if(is_root)
     {
         if(is_file_exist("/bin/bash"))
