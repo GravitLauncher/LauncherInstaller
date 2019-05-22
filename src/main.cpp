@@ -139,8 +139,26 @@ int install_action()
     }
     return 0;
 }
-int main()
+const char* avalible_options = "bm";
+struct installerOptions
 {
+    bool isBuild = false;
+    bool isNoInstall = false;
+};
+installerOptions opts;
+int main(int argc, char **argv)
+{
+    int opt; // каждая следующая опция попадает сюда
+    while((opt = getopt(argc, argv, avalible_options)) != -1) { // вызываем getopt пока она не вернет -1
+        switch(opt) {
+            case 'b': // Собирать из исходников
+                opts.isBuild = true;
+                break;
+            case 'm': // Пропустить этап установки(например для установки модулей в уже установленный LaunchServer)
+                opts.isNoInstall = true;
+                break;
+        }
+    }
     std::cout << "GravitLauncher Linux installer" << std::endl;
     if(is_file_exist("/bin/apt-get"))
     {
@@ -175,7 +193,7 @@ int main()
         }
         else download_url = download_url + version;
     }
-    if(install_action() != 0) return -1;
+    if(!opts.isNoInstall && install_action() != 0) return -1;
     std::cout << "Download modules[YES/NO]?";
     if(read_yes())
     {
