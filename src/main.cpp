@@ -122,36 +122,6 @@ int root_action()
         }
         return 0;
 }
-int install_action()
-{
-	std::cout << "UID: " << getuid() << "" << std::endl;
-	std::cout << "Download LaunchServer" << std::endl;
-	std::string download_launchserver = "curl -o LaunchServer.jar " + download_url + "/LaunchServer.jar";
-	system(download_launchserver.c_str());
-	if (!is_file_exist("LaunchServer.jar"))
-	{
-		std::cerr << "[ERROR] LaunchServer.jar not found. May be curl not installed?";
-		return -1;
-	}
-	std::cout << "Download libraries" << std::endl;
-	std::string download_lib = "curl -o libraries.zip " + download_url + "/libraries.zip";
-	system(download_lib.c_str());
-	if (!is_file_exist("libraries.zip"))
-	{
-		std::cerr << "[ERROR] libraries.zip not found. May be curl not installed?";
-		return -1;
-	}
-	std::cout << "Unpack libraries" << std::endl;
-	system("unzip libraries.zip");
-	if (!is_file_exist("libraries"))
-	{
-		std::cerr << "[ERROR] libraries not found. May be unzip not installed?";
-		return -1;
-	}
-	system("rm libraries.zip");
-	test();
-	return 0;
-}
 
 int test() {
 	std::cout << "Installation test" << std::endl;
@@ -183,6 +153,36 @@ int test() {
 		std::cout << "\"screen -x\" - switch to the last screen" << std::endl;
 		std::cout << "\"Ctrl + A + D\" - exit screen" << std::endl;
 	}
+	return 0;
+}
+int install_action()
+{
+	std::cout << "UID: " << getuid() << "" << std::endl;
+	std::cout << "Download LaunchServer" << std::endl;
+	std::string download_launchserver = "curl -o LaunchServer.jar " + download_url + "/LaunchServer.jar";
+	system(download_launchserver.c_str());
+	if (!is_file_exist("LaunchServer.jar"))
+	{
+		std::cerr << "[ERROR] LaunchServer.jar not found. May be curl not installed?";
+		return -1;
+	}
+	std::cout << "Download libraries" << std::endl;
+	std::string download_lib = "curl -o libraries.zip " + download_url + "/libraries.zip";
+	system(download_lib.c_str());
+	if (!is_file_exist("libraries.zip"))
+	{
+		std::cerr << "[ERROR] libraries.zip not found. May be curl not installed?";
+		return -1;
+	}
+	std::cout << "Unpack libraries" << std::endl;
+	system("unzip libraries.zip");
+	if (!is_file_exist("libraries"))
+	{
+		std::cerr << "[ERROR] libraries not found. May be unzip not installed?";
+		return -1;
+	}
+	system("rm libraries.zip");
+	test();
 	return 0;
 }
 
