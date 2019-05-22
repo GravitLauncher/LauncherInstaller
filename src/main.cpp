@@ -9,6 +9,12 @@ bool is_debian = false;
 bool is_arch = false;
 bool is_centos = false;
 bool is_root = false;
+struct installerOptions
+{
+    bool isBuild = false;
+    bool isNoInstall = false;
+};
+installerOptions opts;
 std::string download_url = "http://mirror.gravitlauncher.ml/build/";
 bool is_file_exist(const char* file)
 {
@@ -23,48 +29,48 @@ bool read_yes()
 }
 int root_action()
 {
-	std::cerr << "[WARN] Installing on behalf of the superuser is prohibited" << std::endl;
-	is_root = true;
-	std::cout << "[ROOT] Check package installation" << std::endl;
-	if (!is_file_exist("/bin/unzip") && (is_debian || is_arch || is_centos))
-	{
-		std::cout << "[ROOT] Unzip not found. Install [YES/NO]? ";
-		if (read_yes())
-		{
-			if (is_debian)
-			{
-				system("apt-get install unzip");
-			}
-			else if (is_arch)
-			{
-				system("pacman -S unzip");
-			}
-			else if (is_centos)
-			{
-				system("yum install unzip");
-			}
-		}
-	}
-	if (!is_file_exist("/bin/curl") && (is_debian || is_arch || is_centos))
-	{
-		std::cout << "[ROOT] Curl not found. Install [YES/NO]? ";
-		if (read_yes())
-		{
-			if (is_debian)
-			{
-				system("apt-get install curl");
-			}
-			else if (is_arch)
-			{
-				system("pacman -S curl");
-			}
-			else if (is_centos)
-			{
-				system("yum install curl");
-			}
-		}
-	}
-	if (!is_file_exist("/bin/git") && (is_debian || is_arch || is_centos))
+    std::cerr << "[WARN] Installing on behalf of the superuser is prohibited" << std::endl;
+        is_root = true;
+        std::cout << "[ROOT] Check package installation" << std::endl;
+        if(!is_file_exist("/bin/unzip") && (is_debian || is_arch || is_centos))
+        {
+            std::cout << "[ROOT] Unzip not found. Install [YES/NO]? ";
+            if(read_yes())
+            {
+                if(is_debian)
+                {
+                    system("apt-get install unzip");
+                }
+                else if(is_arch)
+                {
+                    system("pacman -S unzip");
+                }
+                else if(is_centos)
+                {
+                    system("yum install unzip");
+                }
+            }
+        }
+        if(!is_file_exist("/bin/curl") && (is_debian || is_arch || is_centos))
+        {
+            std::cout << "[ROOT] Curl not found. Install [YES/NO]? ";
+            if(read_yes())
+            {
+                if(is_debian)
+                {
+                    system("apt-get install curl");
+                }
+                else if(is_arch)
+                {
+                    system("pacman -S curl");
+                }
+                else if(is_centos)
+                {
+                    system("yum install curl");
+                }
+            }
+        }
+  if (!is_file_exist("/bin/git") && (is_debian || is_arch || is_centos))
 	{
 		std::cout << "[ROOT] git not found. Install [YES/NO]? ";
 		if (read_yes())
@@ -83,22 +89,38 @@ int root_action()
 			}
 		}
 	}
-	std::string response;
-	std::cout << "Create new user for LaunchServer [YES/NO]? ";
-	std::cin >> response;
-	if (response == "yes" || response == "YES" || response == "Yes")
-	{
-		system("useradd -u 2001 -m launchserver");
-		std::cout << "[ROOT] Create user launchserver" << std::endl;
-		chdir("/home/launchserver");
-		std::cout << "[ROOT] Change dir to /home/launchserver" << std::endl;
-		setuid(2001);
-	}
-	else
-	{
-		return -1;
-	}
-	return 0;
+        std::string response;
+        std::cout << "Create new user for LaunchServer [YES/NO]? ";
+        std::cin >> response;
+        if(response == "yes" || response == "YES" || response == "Yes")
+        {
+            std::string username;
+            std::cout << "Username[launchserver]: ";
+            std::cin >> username;
+            //Check unsafe symbols
+            for(char c : username)
+            {
+                if(!((/*Numbers*/ c >= '0' && c <= '9') || (/*Big chars*/c >= 'A' && c <= 'Z') || (/*Little chars*/c >= 'a' && c <= 'z'))) {
+                    std::cout << "[WARN] Found unsafe symbol \"" << c << "\"" << std::endl;
+                    username = "";
+                }
+            }
+            if(username == "") username = "launchserver";
+            int new_uid = 2001;
+            std::cout << "New UID [2001]: ";
+            std::cin >> new_uid;
+            if(new_uid <= 0) new_uid = 2001;
+            system(("useradd -u "+std::to_string(new_uid)+" -m "+username).c_str());
+            std::cout << "[ROOT] Create user launchserver" << std::endl;
+            chdir("/home/launchserver");
+            std::cout << "[ROOT] Change dir to /home/launchserver" << std::endl;
+            setuid(new_uid);
+        }
+        else
+        {
+            return -1;
+        }
+        return 0;
 }
 int install_action()
 {
@@ -190,12 +212,6 @@ int buildDev() {
 
 
 const char* avalible_options = "bm";
-struct installerOptions
-{
-	bool isBuild = false;
-	bool isNoInstall = false;
-};
-installerOptions opts;
 int main(int argc, char **argv)
 {
 	int opt; // каждая следующая опция попадает сюда
