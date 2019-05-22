@@ -171,12 +171,16 @@ int buildDev() {
 	system("rm -r Radon");
 	std::cout << "Download radon" << std::endl;
 	system("git clone https://github.com/GravitLauncher/Radon.git Radon");
+	system("rm -r modules");
+	std::cout << "Download modules" << std::endl;
+	system("git clone https://github.com/GravitLauncher/LauncherModules.git modules");
 	system("chmod +x gradlew");
     std::cout << "Build" << std::endl;
 	system("./gradlew build");
 	system("mkdir ../LaunchServer");
 	system("mv LaunchServer/build /libs/* ../LaunchServer");
 	system("mv ServerWrapper/build/libs/ServerWrapper.jar ../ServerWrapper.jar");
+	system("mv modules/ ../");
 	system("cd ..");
 	system("rm -rf source");
 	system("cd LaunchServer");
