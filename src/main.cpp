@@ -211,11 +211,14 @@ int main()
 }
 
 int buildDev() {
+	std::cout << "Download dev branch" << std::endl;
 	system("git clone --branch=dev https://github.com/GravitLauncher/Launcher.git source");
 	system("cd source");
 	system("rm -r Radon");
+	std::cout << "Download radon" << std::endl;
 	system("git clone https://github.com/GravitLauncher/Radon.git Radon");
 	system("chmod +x gradlew");
+	std::cout << "Build" << std::endl;
 	system("./gradlew build");
 	system("mkdir ../LaunchServer");
 	system("mv LaunchServer/build /libs/* ../LaunchServer");
