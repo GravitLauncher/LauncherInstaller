@@ -15,7 +15,7 @@ struct installerOptions
     bool isNoInstall = false;
 };
 installerOptions opts;
-std::string download_url = "http://mirror.gravitlauncher.ml/build/";
+std::string download_url = "https://mirror.gravit.pro/build/";
 bool is_file_exist(const char* file)
 {
 	struct stat sts;
