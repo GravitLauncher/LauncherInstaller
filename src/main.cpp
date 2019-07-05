@@ -197,10 +197,10 @@ int buildDev() {
 	std::cout << "Download modules" << std::endl;
 	system("git clone https://github.com/GravitLauncher/LauncherModules.git modules");
 	system("chmod +x gradlew");
-    std::cout << "Build" << std::endl;
+	std::cout << "Build" << std::endl;
 	system("./gradlew build");
 	system("mkdir ../LaunchServer");
-	system("mv LaunchServer/build /libs/* ../LaunchServer");
+	system("mv LaunchServer/build/libs/* ../LaunchServer");
 	system("mv ServerWrapper/build/libs/ServerWrapper.jar ../ServerWrapper.jar");
 	system("mv modules/ ../");
 	system("cd ..");
